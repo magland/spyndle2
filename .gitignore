@@ -3,6 +3,7 @@ output
 spyglass_data
 *.lindi.json
 *.nwb
+table_graph.json
 
 .coverage
 

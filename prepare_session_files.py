@@ -12,11 +12,9 @@ from decimal import Decimal
 def prepare_tables():
     if not os.path.exists('output/tables'):
         os.makedirs('output/tables')
-    with open('table_graph.json', 'r') as f:
-        x = json.load(f)
-    tables = x['tables']
-    # tables = [t for t in tables if t['table_name'] == '`alison_behav`.`__state_script_trials`']
-    for table in tables:
+    with open('table_names.json', 'r') as f:
+        table_names = json.load(f)
+    for table in table_names:
         table_name = table['table_name']
         fname = f'output/tables/{table_name}.json'
         if os.path.exists(fname):
