@@ -24,27 +24,29 @@ const SessionsTable: FunctionComponent<SessionsTableProps> = ({ width, height })
     }, [filteredNwbFileNames, nwbFileNames])
     if (!nwbFileNames) return (<div>Loading sessions...</div>)
     return (
-        <div style={{ position: 'absolute', width, height, overflowY: 'auto' }}>
+        <div style={{ position: 'absolute', width, height }}>
             <NwbFileNamesFilter nwbFileNames={nwbFileNames} setFilteredNwbFileNames={setFilteredNwbFileNames} />
             <div style={{height: 8}}>&nbsp;</div>
-            <table className="nwb-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Session</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {sortedNwbFileNames.map(ff => (
-                        <tr key={ff} style={{cursor: 'pointer'}}>
-                            <td><Checkbox checked={ff === currentNwbFileName} onClick={() => {
-                                setCurrentNwbFileName(ff)
-                            }} /></td>
-                            <td onClick={() => setCurrentNwbFileName(ff)}>{getDisplayNameFromNwbFileName(ff)}</td>
+            <div style={{position: 'absolute', width, top: 35, height: height - 35, overflow: 'auto'}}>
+                <table className="nwb-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Session</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {sortedNwbFileNames.map(ff => (
+                            <tr key={ff} style={{cursor: 'pointer'}}>
+                                <td><Checkbox checked={ff === currentNwbFileName} onClick={() => {
+                                    setCurrentNwbFileName(ff)
+                                }} /></td>
+                                <td onClick={() => setCurrentNwbFileName(ff)}>{getDisplayNameFromNwbFileName(ff)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     )
 }
