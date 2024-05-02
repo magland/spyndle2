@@ -24,6 +24,8 @@ type Item = {
 } | {
     type: 'schema-header'
     schemaName: string
+} | {
+    type: 'divider'
 }
 
 const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFileName }) => {
@@ -79,9 +81,15 @@ const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFi
             }
         })
         allSchemaNames.sort()
+        let lastSchemaPrefix = ''
         for (const schemaName of allSchemaNames) {
             const tablesForSchema = sortedTables.filter(t => t.table_name.split('.')[0].replace(/`/g, '') === schemaName)
             if (tablesForSchema.length === 0) continue
+            const schemaPrefix = schemaName.split('_')[0]
+            if (schemaPrefix !== lastSchemaPrefix) {
+                items.push({type: 'divider'})
+                lastSchemaPrefix = schemaPrefix
+            }
             items.push({type: 'schema-header', schemaName})
             tablesForSchema.forEach(t => {
                 items.push({type: 'table', table: t})
@@ -110,7 +118,7 @@ const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFi
                             </div>
                         )
                     }
-                    else {
+                    else if (item.type === 'table') {
                         return (
                             <TableView
                                 key={i}
@@ -128,6 +136,11 @@ const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFi
                                     setSelectedRows(selectedRows.filter(r => r.tableName !== item.table.table_name).concat(rowIndices.map(rowIndex => ({tableName: item.table.table_name, rowIndex}))))
                                 }}
                             />
+                        )
+                    }
+                    else if (item.type === 'divider') {
+                        return (
+                            <div key={i} style={{paddingTop: 16, paddingBottom: 4, borderBottom: '1px solid #888'}} />
                         )
                     }
                 })
@@ -246,10 +259,10 @@ type TableNameViewProps = {
 
 const TableNameView: FunctionComponent<TableNameViewProps> = ({ table, onClick, rowCount }) => {
     const name2 = getDisplayTableName(table.table_name)
-    const role = getDatajointTableRole(table.table_name)
+    // const role = getDatajointTableRole(table.table_name)
     return (
         <span style={{cursor: onClick ? 'pointer' : 'default'}} onClick={onClick}>
-            {name2} { rowCount ? `(${rowCount})` : '' } - {role}
+            {name2} { rowCount ? `(${rowCount})` : '' }
         </span>
     )
 
