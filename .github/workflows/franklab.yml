@@ -17,6 +17,9 @@ jobs:
           cd devel/prepare_session_files
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Upgrade position-tools
+        run: |
+          pip install --upgrade position-tools
       - name: create table names
         run: |
           python devel/prepare_session_files/create_table_names.py
