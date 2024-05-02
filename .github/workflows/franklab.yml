@@ -19,7 +19,12 @@ jobs:
           pip install -r requirements.txt
       - name: Upgrade position-tools
         run: |
-          pip install --upgrade position-tools
+          pip install --upgrade position-tools  # is this necessary?
+      - name: Install spyglass from source
+        run: |
+          git clone https://github.com/lorenfranklab/spyglass.git
+          cd spyglass
+          pip install -e .
       - name: create table names
         run: |
           python devel/prepare_session_files/create_table_names.py
