@@ -118,7 +118,7 @@ const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFi
                                 visibleRows={
                                     primaryKeyFilter ? item.table.rows.map((row) => {
                                         for (const key in primaryKeyFilter) {
-                                            if (`${row[key]}` !== primaryKeyFilter[key]) return false
+                                            if ((key in row) && (`${row[key]}` !== primaryKeyFilter[key])) return false
                                         }
                                         return true
                                     }) : undefined

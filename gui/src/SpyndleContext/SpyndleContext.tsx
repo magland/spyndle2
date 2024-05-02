@@ -69,6 +69,26 @@ export const SetupSpyndle: FunctionComponent<PropsWithChildren<Props>> = ({child
         })()
     }, [])
 
+    useEffect(() => {
+        // set s query parameter in url each time currentNwbFileName changes
+        if (!spyndleState.currentNwbFileName) return
+        const url = new URL(window.location.href)
+        url.searchParams.set('s', spyndleState.currentNwbFileName)
+        window.history.replaceState({}, '', url.toString())
+    }, [spyndleState.currentNwbFileName])
+
+    useEffect(() => {
+        // check the initial s query parameter in url
+        const url = new URL(window.location.href)
+        const s = url.searchParams.get('s')
+        if (s) {
+            spyndleStateDispatch({
+                type: 'setCurrentNwbFileName',
+                nwbFileName: s
+            })
+        }
+    }, [])
+
     return (
         <SpyndleContext.Provider value={value}>
             {children}
