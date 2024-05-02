@@ -1,3 +1,4 @@
 datajoint
 boto3
 spyglass-neuro
+opencv-python
