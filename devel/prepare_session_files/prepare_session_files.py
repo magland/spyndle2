@@ -36,7 +36,11 @@ def prepare_tables():
             continue
 
         print(f'Fetching table: {table_name}')
-        tt = dj.FreeTable(dj.conn(), table_name)
+        try:
+            tt = dj.FreeTable(dj.conn(), table_name)
+        except Exception:
+            print('Warning: could not create table for', table_name)
+            continue
         heading = tt.heading
         assert heading is not None
         heading_names = list(heading.names)
