@@ -66,7 +66,7 @@ const NwbFileNamesFilter: FunctionComponent<NwbFileNamesFilterProps> = ({nwbFile
     return (
         <div>
             <FaSearch />&nbsp;&nbsp;
-            <input type="text" placeholder="Filter sessions..." onChange={e => {
+            <input type="text" style={{width: 100}} placeholder="Filter sessions..." onChange={e => {
                 const filter = e.target.value
                 if (filter === '') {
                     setFilteredNwbFileNames(undefined)

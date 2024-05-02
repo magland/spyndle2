@@ -18,6 +18,14 @@ type PrimaryKeyFilter = {
     [key: string]: string
 } | undefined
 
+type Item = {
+    type: 'table'
+    table: DataForNwbFile['tables'][0]
+} | {
+    type: 'schema-header'
+    schemaName: string
+}
+
 const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFileName }) => {
     const {spyndleClient} = useSpyndle()
     const [dataForNwbFile, setDataForNwbFile] = useState<DataForNwbFile>()
@@ -50,8 +58,8 @@ const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFi
     }, [selectedRows, dataForNwbFile])
     const sortedTables = useMemo(() => (
         dataForNwbFile ? dataForNwbFile.tables.sort((a, b) => {
-            const roleA = getDatajointTableTier(a.table_name)
-            const roleB = getDatajointTableTier(b.table_name)
+            const roleA = getDatajointTableRole(a.table_name)
+            const roleB = getDatajointTableRole(b.table_name)
             const displayNameA = getDisplayTableName(a.table_name).toLowerCase()
             const displayNameB = getDisplayTableName(b.table_name).toLowerCase()
             const roleOrder = {manual: 1, imported: 2, computed: 3, lookup: 4, job: 5}
@@ -61,6 +69,26 @@ const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFi
             return displayNameA < displayNameB ? -1 : 1
         }) : []
     ), [dataForNwbFile])
+    const items = useMemo(() => {
+        const items: Item[] = []
+        const allSchemaNames: string[] = []
+        sortedTables.forEach(t => {
+            const schemaName = t.table_name.split('.')[0].replace(/`/g, '')
+            if (!allSchemaNames.includes(schemaName)) {
+                allSchemaNames.push(schemaName)
+            }
+        })
+        allSchemaNames.sort()
+        for (const schemaName of allSchemaNames) {
+            const tablesForSchema = sortedTables.filter(t => t.table_name.split('.')[0].replace(/`/g, '') === schemaName)
+            if (tablesForSchema.length === 0) continue
+            items.push({type: 'schema-header', schemaName})
+            tablesForSchema.forEach(t => {
+                items.push({type: 'table', table: t})
+            })
+        }
+        return items
+    }, [sortedTables])
     if (!spyndleClient) {
         return <div>spyndleClient not available</div>
     }
@@ -74,25 +102,34 @@ const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFi
         <div style={{ position: 'absolute', width, height, overflowY: 'auto', fontSize: 12 }}>
             <div style={{fontWeight: 'bold', fontSize: 18}}>{nwbFileName}</div>
             {
-                sortedTables.map((table, i) => {
-                    return (
-                        <TableView
-                            key={i}
-                            table={table}
-                            visibleRows={
-                                primaryKeyFilter ? table.rows.map((row) => {
-                                    for (const key in primaryKeyFilter) {
-                                        if (`${row[key]}` !== primaryKeyFilter[key]) return false
-                                    }
-                                    return true
-                                }) : undefined
-                            }
-                            selectedRowIndices={selectedRows.filter(r => r.tableName === table.table_name).map(r => r.rowIndex)}
-                            setSelectedRowIndices={(rowIndices) => {
-                                setSelectedRows(selectedRows.filter(r => r.tableName !== table.table_name).concat(rowIndices.map(rowIndex => ({tableName: table.table_name, rowIndex}))))
-                            }}
-                        />
-                    )
+                items.map((item, i) => {
+                    if (item.type === 'schema-header') {
+                        return (
+                            <div key={i} style={{paddingTop: 8, paddingBottom: 2, fontSize: 14, color: '#555', fontWeight: 'bold'}}>
+                                {item.schemaName}&nbsp;&nbsp;
+                            </div>
+                        )
+                    }
+                    else {
+                        return (
+                            <TableView
+                                key={i}
+                                table={item.table}
+                                visibleRows={
+                                    primaryKeyFilter ? item.table.rows.map((row) => {
+                                        for (const key in primaryKeyFilter) {
+                                            if (`${row[key]}` !== primaryKeyFilter[key]) return false
+                                        }
+                                        return true
+                                    }) : undefined
+                                }
+                                selectedRowIndices={selectedRows.filter(r => r.tableName === item.table.table_name).map(r => r.rowIndex)}
+                                setSelectedRowIndices={(rowIndices) => {
+                                    setSelectedRows(selectedRows.filter(r => r.tableName !== item.table.table_name).concat(rowIndices.map(rowIndex => ({tableName: item.table.table_name, rowIndex}))))
+                                }}
+                            />
+                        )
+                    }
                 })
             }
         </div>
@@ -109,15 +146,16 @@ type TableViewProps = {
 const TableView: FunctionComponent<TableViewProps> = ({ table, selectedRowIndices, setSelectedRowIndices, visibleRows }) => {
     const [expanded, setExpanded] = useState(false)
     const numVisible = visibleRows ? visibleRows.filter(v => v).length : table.rows.length
+    if (numVisible === 0) return null
     return (
         <div>
             <div style={{
                 fontWeight: numVisible > 0 ? 'bold' : 'normal',
-                textDecoration: numVisible === 0 ? 'line-through' : 'none',
+                // textDecoration: numVisible === 0 ? 'line-through' : 'none',
                 fontSize: 14,
                 paddingTop: 8,
                 paddingBottom: 2,
-                color: colorForRole(getDatajointTableTier(table.table_name))
+                color: colorForRole(getDatajointTableRole(table.table_name))
             }}>
                 <button onClick={() => setExpanded(!expanded)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14 }}>
                     {expanded ? '-' : '+'}
@@ -125,7 +163,7 @@ const TableView: FunctionComponent<TableViewProps> = ({ table, selectedRowIndice
                 <span style={{cursor: 'pointer'}} onClick={() => setExpanded(!expanded)}>
                     &nbsp;&nbsp;
                 </span>
-                <TableNameView name={table.table_name} onClick={() => setExpanded(!expanded)} rowCount={numVisible} />
+                <TableNameView table={table} onClick={() => setExpanded(!expanded)} rowCount={numVisible} />
             </div>
             {expanded ? (
                 <div style={{maxHeight: 250, overflowY: 'auto'}}>
@@ -201,14 +239,14 @@ const TableRow: FunctionComponent<TableRowProps> = ({ columns, row, primaryKey, 
 }
 
 type TableNameViewProps = {
-    name: string
+    table: DataForNwbFile['tables'][0]
     onClick?: () => void
     rowCount?: number
 }
 
-const TableNameView: FunctionComponent<TableNameViewProps> = ({ name, onClick, rowCount }) => {
-    const name2 = getDisplayTableName(name)
-    const role = getDatajointTableTier(name)
+const TableNameView: FunctionComponent<TableNameViewProps> = ({ table, onClick, rowCount }) => {
+    const name2 = getDisplayTableName(table.table_name)
+    const role = getDatajointTableRole(table.table_name)
     return (
         <span style={{cursor: onClick ? 'pointer' : 'default'}} onClick={onClick}>
             {name2} { rowCount ? `(${rowCount})` : '' } - {role}
@@ -230,7 +268,7 @@ const snakeCaseToCamelCase = (s: string) => {
     return s.replace(/_./g, m => m[1].toUpperCase()).replace(/^./, m => m.toUpperCase())
 }
 
-const getDatajointTableTier = (name: string) => {
+const getDatajointTableRole = (name: string) => {
     const a = name.split('.')[1] || ''
     const b = a.replace(/`/g, '')
     if (b.startsWith('#')) {
