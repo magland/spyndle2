@@ -1,2 +1,3 @@
 datajoint
 boto3
+spyglass

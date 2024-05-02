@@ -14,8 +14,7 @@ def prepare_tables():
         os.makedirs('output/tables')
     with open('table_names.json', 'r') as f:
         table_names = json.load(f)
-    for table in table_names:
-        table_name = table['table_name']
+    for table_name in table_names:
         fname = f'output/tables/{table_name}.json'
         if os.path.exists(fname):
             continue
@@ -111,6 +110,11 @@ def prepare_sessions():
     for row in x['rows']:
         nwb_file_names.append(row['nwb_file_name'])
     nwb_file_names = sorted(nwb_file_names)
+
+    with open('nwb_file_names.json', 'w') as f:
+        json.dump(nwb_file_names, f, indent=4)
+    _upload_file('nwb_file_names.json', 'spyndle/franklab/nwb_file_names.json')
+
     # get all table file names, files in the output directory
     table_names = []
     for fname in os.listdir('output/tables'):
