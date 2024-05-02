@@ -14,19 +14,19 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          cd devel
+          cd devel/prepare_session_files
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: create table names
         run: |
-          python devel/create_table_names.py
+          python devel/prepare_session_files/create_table_names.py
         env:
           DJ_DATABASE_HOST_FRANKLAB: ${{ secrets.DJ_DATABASE_HOST_FRANKLAB }}
           DJ_DATABASE_USER_FRANKLAB: ${{ secrets.DJ_DATABASE_USER_FRANKLAB }}
           DJ_DATABASE_PASSWORD_FRANKLAB: ${{ secrets.DJ_DATABASE_PASSWORD_FRANKLAB }}
       - name: prepare session files
         run: |
-          python devel/prepare_session_files.py
+          python devel/prepare_session_files/prepare_session_files.py
         env:
           DJ_DATABASE_HOST_FRANKLAB: ${{ secrets.DJ_DATABASE_HOST_FRANKLAB }}
           DJ_DATABASE_USER_FRANKLAB: ${{ secrets.DJ_DATABASE_USER_FRANKLAB }}
