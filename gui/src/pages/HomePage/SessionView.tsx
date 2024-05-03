@@ -97,6 +97,19 @@ const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFi
         }
         return items
     }, [sortedTables])
+    const {nwbFileUrl, nwbFileDescription} = useMemo(() => {
+        if (!sortedTables) return {nwbFileUrl: undefined, nwbFileDescription: undefined}
+        const nwbFileTable = sortedTables.find(t => t.table_name === '`common_nwbfile`.`nwbfile`')
+        if (!nwbFileTable) return {nwbFileUrl: undefined, nwbFileDescription: undefined}
+        const nwbFileRow = nwbFileTable.rows[0]
+        if (!nwbFileRow) return {nwbFileUrl: undefined, nwbFileDescription: undefined}
+        return {nwbFileUrl: nwbFileRow['nwb_file_url'], nwbFileDescription: nwbFileRow['nwb_file_description']}
+    }, [sortedTables])
+    const neurosiftUrl = useMemo(() => {
+        if (!nwbFileUrl) return undefined
+        const st = nwbFileName.endsWith('.lindi.json') ? '&st=lindi' : ''
+        return `https://neurosift.app/?p=/nwb&url=${nwbFileUrl}${st}`
+    }, [nwbFileUrl, nwbFileName])
     if (!spyndleClient) {
         return <div>spyndleClient not available</div>
     }
@@ -108,7 +121,15 @@ const SessionView: FunctionComponent<SessionViewProps> = ({ width, height, nwbFi
     }
     return (
         <div style={{ position: 'absolute', width, height, overflowY: 'auto', fontSize: 12 }}>
-            <div style={{fontWeight: 'bold', fontSize: 18}}>{nwbFileName}</div>
+            <div style={{fontWeight: 'bold', fontSize: 18}}>
+                {nwbFileName}
+            </div>
+            {nwbFileDescription && <div style={{fontWeight: 'bold', fontSize: 18, paddingTop: 8}}>
+                {nwbFileDescription}
+            </div>}
+            {neurosiftUrl && <div style={{paddingTop: 8}}>
+                <a href={neurosiftUrl} target="_blank" rel="noreferrer">Open in NeuroSift</a>
+            </div>}
             {
                 items.map((item, i) => {
                     if (item.type === 'schema-header') {
