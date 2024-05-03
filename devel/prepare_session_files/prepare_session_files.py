@@ -2,6 +2,7 @@ import dj_init  # noqa: F401
 import json
 import time
 import os
+import traceback
 import numpy as np
 import boto3
 import datajoint as dj
@@ -24,14 +25,15 @@ def prepare_tables():
         if os.path.exists(fname):
             continue
 
-        # skip these because there is a problem fetching
-        if table_name in [
-            '`common_lab`.`nwbfile`',
-            '`common_lab`.`analysis_nwbfile`',
-            '`common_nwbfile`.`nwbfile`',
-            '`common_nwbfile`.`analysis_nwbfile`'
-        ]:
-            continue
+        # skip these because there is a problem fetching filepath@raw
+        # (resolved below)
+        # if table_name in [
+        #     '`common_lab`.`nwbfile`',
+        #     '`common_lab`.`analysis_nwbfile`',
+        #     '`common_nwbfile`.`nwbfile`',
+        #     '`common_nwbfile`.`analysis_nwbfile`'
+        # ]:
+        #     continue
 
         # skip these because they are too big
         if table_name in [
@@ -43,8 +45,9 @@ def prepare_tables():
         print(f'Fetching table: {table_name}')
         try:
             tt = dj.FreeTable(dj.conn(), table_name)
-        except Exception:
-            print('Warning: could not create table for', table_name)
+        except Exception as e:
+            traceback.print_exc()
+            print(f'Warning: could not fetch table...{table_name}: {e}')
             continue
         heading = tt.heading
         assert heading is not None
@@ -52,12 +55,13 @@ def prepare_tables():
         primary_key = tt.primary_key
         columns_to_fetch = [
             name for name in heading_names
-            if heading.attributes[name].type != 'blob'
+            if heading.attributes[name].type != 'blob' and heading.attributes[name].type != 'filepath@raw'
         ]
         try:
             aa = tt.proj(*columns_to_fetch).fetch()
         except Exception as e:
             aa = None
+            traceback.print_exc()
             print(f'Warning: could not fetch table {table_name}: {e}')
         if aa is not None:
             rows = []
