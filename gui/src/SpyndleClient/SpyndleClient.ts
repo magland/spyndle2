@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 class SpyndleClient {
     #cachedData: {[nwbFileName: string]: DataForNwbFile} = {};
-    constructor(private o: {_nwbFilenames: string[]}) {
+    constructor(private o: {_nwbFilenames: string[], instance: string}) {
 
     }
-    static async create() {
-        const url = 'https://neurosift.org/spyndle/franklab/nwb_file_names.json'
+    static async create(instance: string) {
+        const url = `https://neurosift.org/spyndle/${instance}/nwb_file_names.json`
         const response = await fetch(url);
         if (response.ok) {
             const nwbFileNames = await response.json();
-            return new SpyndleClient({_nwbFilenames: nwbFileNames})
+            return new SpyndleClient({_nwbFilenames: nwbFileNames, instance})
         }
         else {
             alert('Failed to fetch NWB file names from ' + url);
@@ -22,7 +22,8 @@ class SpyndleClient {
         if (this.#cachedData[nwbFileName]) {
             return this.#cachedData[nwbFileName];
         }
-        const url = `https://neurosift.org/spyndle/franklab/sessions/${nwbFileName}.json`
+        const instance = this.o.instance;
+        const url = `https://neurosift.org/spyndle/${instance}/sessions/${nwbFileName}.json`
         const response = await fetch(url);
         if (response.ok) {
             const data = await response.json();

@@ -1,4 +1,4 @@
-import dj_init_franklab  # noqa: F401
+import dj_init  # noqa: F401
 import json
 import spyglass.common as sgc
 

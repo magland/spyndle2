@@ -1,6 +1,9 @@
 import React, { FunctionComponent, PropsWithChildren, useEffect, useMemo } from 'react';
 import SpyndleClient from '../SpyndleClient/SpyndleClient';
 
+const urlQuery = new URLSearchParams(window.location.search)
+const instance = urlQuery.get('i') || 'franklab'
+
 type Props = {
     // none
 }
@@ -60,7 +63,7 @@ export const SetupSpyndle: FunctionComponent<PropsWithChildren<Props>> = ({child
 
     useEffect(() => {
         (async () => {
-            const client = await SpyndleClient.create()
+            const client = await SpyndleClient.create(instance)
             if (!client) return
             spyndleStateDispatch({
                 type: 'setSpyndleClient',

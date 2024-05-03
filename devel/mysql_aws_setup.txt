@@ -1,0 +1,19 @@
+For creating a mysql database on aws (for development)
+
+Create database
+https://us-east-1.console.aws.amazon.com/rds/home
+Create a new DB instance
+MySQL 8.x.x
+Free Tier
+Single DB Instance
+DB instance identifier: spyglass-arc-dev
+Master user name: admin
+Self managed password: ***
+Minimum allocated storage: 20GB
+Create a new VPC
+Public access: yes
+New VPC Security group: spyglass-arc-dev-security-group
+Password authentication
+No performance insights
+Do not enable automatic backups
+Do not encrypt the database

@@ -1,4 +1,4 @@
-import dj_init_franklab  # noqa: F401
+import dj_init  # noqa: F401
 import json
 import time
 import os
@@ -7,6 +7,11 @@ import boto3
 import datajoint as dj
 from uuid import UUID
 from decimal import Decimal
+
+
+spyglass_instance = os.environ.get('SPYGLASS_INSTANCE', None)
+if spyglass_instance is None:
+    raise Exception('Please set SPYGLASS_INSTANCE environment variable. Examples: franklab, arc-dev')
 
 
 def prepare_tables():
@@ -117,7 +122,7 @@ def prepare_sessions():
 
     with open('nwb_file_names.json', 'w') as f:
         json.dump(nwb_file_names, f, indent=4)
-    _upload_file('nwb_file_names.json', 'spyndle/franklab/nwb_file_names.json')
+    _upload_file('nwb_file_names.json', f'spyndle/{spyglass_instance}/nwb_file_names.json')
 
     # get all table file names, files in the output directory
     table_names = []
@@ -162,7 +167,7 @@ def upload_session_files():
     for fname in os.listdir('output/sessions'):
         if not fname.endswith('.json'):
             continue
-        _upload_file(f'output/sessions/{fname}', f'spyndle/franklab/sessions/{fname}')
+        _upload_file(f'output/sessions/{fname}', f'spyndle/{spyglass_instance}/sessions/{fname}')
 
 
 def _upload_file(local_fname, remote_fname):

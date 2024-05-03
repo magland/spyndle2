@@ -1,1 +1,5 @@
+output
+table_names.json
+nwb_file_names.json
 .vercel
+.vscode/launch.json
