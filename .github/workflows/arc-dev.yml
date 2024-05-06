@@ -33,6 +33,7 @@ jobs:
           DJ_DATABASE_HOST_ARC_DEV: ${{ secrets.DJ_DATABASE_HOST_ARC_DEV }}
           DJ_DATABASE_USER_ARC_DEV: ${{ secrets.DJ_DATABASE_USER_ARC_DEV }}
           DJ_DATABASE_PASSWORD_ARC_DEV: ${{ secrets.DJ_DATABASE_PASSWORD_ARC_DEV }}
+          SPYGLASS_BASE_DIR_ARC_DEV: ${{ secrets.SPYGLASS_BASE_DIR_ARC_DEV }}
       - name: prepare session files
         run: |
           python devel/prepare_session_files/prepare_session_files.py
@@ -41,6 +42,7 @@ jobs:
           DJ_DATABASE_HOST_ARC_DEV: ${{ secrets.DJ_DATABASE_HOST_ARC_DEV }}
           DJ_DATABASE_USER_ARC_DEV: ${{ secrets.DJ_DATABASE_USER_ARC_DEV }}
           DJ_DATABASE_PASSWORD_ARC_DEV: ${{ secrets.DJ_DATABASE_PASSWORD_ARC_DEV }}
+          SPYGLASS_BASE_DIR_ARC_DEV: ${{ secrets.SPYGLASS_BASE_DIR_ARC_DEV }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
