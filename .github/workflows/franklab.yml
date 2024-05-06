@@ -33,6 +33,7 @@ jobs:
           DJ_DATABASE_HOST_FRANKLAB: ${{ secrets.DJ_DATABASE_HOST_FRANKLAB }}
           DJ_DATABASE_USER_FRANKLAB: ${{ secrets.DJ_DATABASE_USER_FRANKLAB }}
           DJ_DATABASE_PASSWORD_FRANKLAB: ${{ secrets.DJ_DATABASE_PASSWORD_FRANKLAB }}
+          SPYGLASS_BASE_DIR_FRANKLAB: ${{ secrets.SPYGLASS_BASE_DIR_FRANKLAB }}
       - name: prepare session files
         run: |
           python devel/prepare_session_files/prepare_session_files.py
@@ -41,6 +42,7 @@ jobs:
           DJ_DATABASE_HOST_FRANKLAB: ${{ secrets.DJ_DATABASE_HOST_FRANKLAB }}
           DJ_DATABASE_USER_FRANKLAB: ${{ secrets.DJ_DATABASE_USER_FRANKLAB }}
           DJ_DATABASE_PASSWORD_FRANKLAB: ${{ secrets.DJ_DATABASE_PASSWORD_FRANKLAB }}
+          SPYGLASS_BASE_DIR_FRANKLAB: ${{ secrets.SPYGLASS_BASE_DIR_FRANKLAB }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
